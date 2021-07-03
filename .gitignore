@@ -1,3 +1,4 @@
 /.prettierrc
 /dist
 /node_modules
+yarn-error.log
