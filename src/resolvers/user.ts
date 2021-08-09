@@ -12,6 +12,7 @@ import {
 } from 'type-graphql'
 import argon2 from 'argon2'
 import { EntityManager } from '@mikro-orm/postgresql'
+import { COOKIE_NAME } from '../constants'
 
 @InputType()
 class UsernamePasswordInput {
@@ -40,17 +41,14 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
    @Query(() => User, { nullable: true })
-   async me(
-      @Ctx() { req, em }: MyContext
-   ) {
+   async me(@Ctx() { req, em }: MyContext) {
       // user not logged in
       if (!req.session.userId) {
-         return null;
+         return null
       }
-      const user = await em.findOne(User, { id: req.session.userId });
+      const user = await em.findOne(User, { id: req.session.userId })
       return user
    }
-
 
    @Mutation(() => UserResponse)
    async register(
@@ -79,17 +77,19 @@ export class UserResolver {
       }
 
       const hashedPassword = await argon2.hash(options.password)
-      let user;
+      let user
       try {
-         const result = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert(
-            {
+         const result = await (em as EntityManager)
+            .createQueryBuilder(User)
+            .getKnexQuery()
+            .insert({
                username: options.username,
                password: hashedPassword,
                created_at: new Date(),
                updated_at: new Date(),
-            }
-         ).returning("*");
-         user = result[0];
+            })
+            .returning('*')
+         user = result[0]
       } catch (err) {
          // duplicate username error code
          if (err.code === '23505') {
@@ -139,10 +139,25 @@ export class UserResolver {
          }
       }
 
-      req.session.userId = user.id;
+      req.session.userId = user.id
 
       return {
          user,
       }
+   }
+
+   @Mutation(() => Boolean)
+   logout(@Ctx() { req, res }: MyContext) {
+      return new Promise((resolve) =>
+         req.session.destroy((err) => {
+            res.clearCookie(COOKIE_NAME)
+            if (err) {
+               console.log(err)
+               resolve(false)
+               return
+            }
+            resolve(true)
+         })
+      )
    }
 }
