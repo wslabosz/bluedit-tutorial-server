@@ -73,6 +73,16 @@ export class UserResolver {
       } catch (err) {
          // duplicate username error code
          if (err.code === '23505') {
+            if (err.detail.includes('email')) {
+               return {
+                  errors: [
+                     {
+                        field: 'email',
+                        message: 'email already exists',
+                     },
+                  ],
+               }
+            }
             return {
                errors: [
                   {

@@ -12,6 +12,7 @@ import session from 'express-session'
 import connectRedis from 'connect-redis'
 import cors from 'cors'
 import { createConnection } from 'typeorm'
+import path from 'path'
 
 const main = async () => {
    const connection = await createConnection({
@@ -21,11 +22,13 @@ const main = async () => {
       password: 'postgres',
       logging: true,
       synchronize: true,
+      migrations: [path.join(__dirname, './migrations/*')],
       entities: [Post, User],
    })
 
-   const app = express()
+   await connection.runMigrations()
 
+   const app = express()
    const RedisStore = connectRedis(session)
    const redis = new Redis()
 
