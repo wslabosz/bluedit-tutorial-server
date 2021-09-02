@@ -1,5 +1,4 @@
 import { Post } from '../entities/Post'
-import { Upvote } from '../entities/Upvote'
 import {
    Arg,
    Ctx,
@@ -62,7 +61,7 @@ export class PostResolver {
             'username', u.username,
             'email', u.email,
             'createdAt', u."createdAt",
-            'updatedAt', u.updatedAt,
+            'updatedAt', u."updatedAt"
             ) "createdBy"
          from post p
          inner join public.user u on u.id = p."creatorId"
@@ -124,18 +123,16 @@ export class PostResolver {
       const { userId } = req.session
       const isUpvote = value !== -1
       const realValue = isUpvote ? 1 : -1
-      await Upvote.insert({
-         userId,
-         postId,
-         value: realValue,
-      })
       await getConnection().query(
          `
-         update post post
-         set p.points = p.points + $1
-         where p.id = $2
-         `,
-         [realValue, postId]
+         START TRANSACTION;
+         insert into upvote ("userId", "postId", value)
+         values(${userId}, ${postId}, ${realValue});
+         update post 
+         set points = points + ${realValue}
+         where id = ${postId};
+         COMMIT;
+         `
       )
       return true
    }
