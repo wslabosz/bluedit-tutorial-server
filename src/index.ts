@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import { COOKIE_NAME, __prod__ } from './constants'
 import { Post } from './entities/Post'
 import { User } from './entities/User'
+import { Upvote } from './entities/Upvote'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import { buildSchema } from 'type-graphql'
@@ -23,7 +24,7 @@ const main = async () => {
       logging: true,
       synchronize: true,
       migrations: [path.join(__dirname, './migrations/*')],
-      entities: [Post, User],
+      entities: [Post, User, Upvote],
    })
 
    await connection.runMigrations()

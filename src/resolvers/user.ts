@@ -8,6 +8,8 @@ import {
    Mutation,
    ObjectType,
    Query,
+   FieldResolver,
+   Root,
 } from 'type-graphql'
 import argon2 from 'argon2'
 import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from '../constants'
@@ -33,8 +35,17 @@ class UserResponse {
    user?: User
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+   @FieldResolver(() => String)
+   email(@Root() user: User, @Ctx() { req }: MyContext) {
+      // don't show email if it's not requesting user's
+      if (req.session.userId === user.id) {
+         return user.email
+      }
+      return ''
+   }
+
    @Query(() => User, { nullable: true })
    me(@Ctx() { req }: MyContext) {
       // user not logged in
