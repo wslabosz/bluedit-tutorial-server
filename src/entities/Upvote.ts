@@ -4,7 +4,6 @@ import { User } from './User'
 
 @Entity()
 export class Upvote extends BaseEntity {
-
    @Column({ type: 'int' })
    value: number
 
@@ -17,6 +16,8 @@ export class Upvote extends BaseEntity {
    @ManyToOne(() => User, (user) => user.upvotes)
    user: User
 
-   @ManyToOne(() => Post, (post) => post.upvotes)
+   @ManyToOne(() => Post, (post) => post.upvotes, {
+      onDelete: 'CASCADE',
+   })
    post: Post
 }
