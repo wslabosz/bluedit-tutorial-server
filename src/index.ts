@@ -14,6 +14,8 @@ import connectRedis from 'connect-redis'
 import cors from 'cors'
 import { createConnection } from 'typeorm'
 import path from 'path'
+import { createUserLoader } from './utils/createUserLoader'
+import { createUpvoteLoader } from './utils/createUpvoteLoader'
 
 const main = async () => {
    const connection = await createConnection({
@@ -63,7 +65,13 @@ const main = async () => {
          resolvers: [PostResolver, UserResolver],
          validate: false,
       }),
-      context: ({ req, res }) => ({ req, res, redis }),
+      context: ({ req, res }) => ({
+         req,
+         res,
+         redis,
+         userLoader: createUserLoader(),
+         upvoteLoader: createUpvoteLoader(),
+      }),
    })
 
    apolloServer.applyMiddleware({

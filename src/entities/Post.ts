@@ -41,7 +41,7 @@ export class Post extends BaseEntity {
 
    @Field()
    @ManyToOne(() => User, (user) => user.posts)
-   createdBy: User
+   creator: User
 
    @OneToMany(() => Upvote, (upvote) => upvote.post)
    upvotes: Upvote[]
