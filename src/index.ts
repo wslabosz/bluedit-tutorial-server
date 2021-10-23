@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import 'dotenv-safe/config'
 import { COOKIE_NAME, __prod__ } from './constants'
 import { Post } from './entities/Post'
 import { User } from './entities/User'
@@ -20,9 +21,7 @@ import { createUpvoteLoader } from './utils/createUpvoteLoader'
 const main = async () => {
    const connection = await createConnection({
       type: 'postgres',
-      database: 'lireddit',
-      username: 'postgres',
-      password: 'postgres',
+      url: process.env.DATABASE_URL,
       logging: true,
       synchronize: true,
       migrations: [path.join(__dirname, './migrations/*')],
@@ -33,11 +32,11 @@ const main = async () => {
 
    const app = express()
    const RedisStore = connectRedis(session)
-   const redis = new Redis()
+   const redis = new Redis(process.env.REDIS_URL)
 
    app.use(
       cors({
-         origin: 'http://localhost:3000',
+         origin: process.env.CORS_ORIGIN,
          credentials: true,
       })
    )
@@ -53,9 +52,10 @@ const main = async () => {
             httpOnly: true,
             sameSite: 'lax', // csrf
             secure: __prod__, // cookie only works in https
+            domain: __prod__ ? '.krodenakakrodex@gmail.com ' : undefined,
          },
          saveUninitialized: false,
-         secret: 'super secret variable',
+         secret: process.env.SESSION_SECRET,
          resave: false,
       })
    )
@@ -79,7 +79,7 @@ const main = async () => {
       cors: false,
    })
 
-   app.listen(4000, () => {
+   app.listen(parseInt(process.env.PORT), () => {
       console.log('server started on localhost:4000')
    })
 }

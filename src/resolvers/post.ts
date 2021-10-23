@@ -86,7 +86,6 @@ export class PostResolver {
          `,
          replacements
       )
-      console.log(posts)
 
       return {
          posts: posts.slice(0, realLimit),
