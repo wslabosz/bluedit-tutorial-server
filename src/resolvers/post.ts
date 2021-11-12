@@ -149,7 +149,7 @@ export class PostResolver {
       const realValue = isUpvote ? 1 : -1
       const { userId } = req.session
       const upvote = await Upvote.findOne({
-         where: { userId: userId, postId: postId },
+         where: { postId, userId },
       })
 
       // user has voted on the post already

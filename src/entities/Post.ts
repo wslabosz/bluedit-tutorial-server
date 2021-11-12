@@ -29,7 +29,7 @@ export class Post extends BaseEntity {
 
    @Field()
    @Column({ type: 'int', default: 0 })
-   points!: string
+   points!: number
 
    //only graphql schema value
    @Field(() => Int, { nullable: true })
